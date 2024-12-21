@@ -11,7 +11,7 @@ router.get('/', (req, res) => {
 
 // Get task details
 router.get('/:id', (req, res) => {
-    const { id } = req.params
+    const { id } = req.params;
     const task = tasksData.tasks.find(task => task.id === id);
     if (!task) {
         return res.status(404).json({ status: 404, message: 'Task not found' });
@@ -22,17 +22,22 @@ router.get('/:id', (req, res) => {
 //Add a task
 router.post('/', (req, res) => {
     const { title, description, deadline, priority, done } = req.body;
+    const currentTimestamp = new Date().toISOString();
+    
     const newTask = {
         id: uuidv4(),
         title,
         description,
         deadline,
         priority,
-        done
+        done,
+        created_at: currentTimestamp,
+        updated_at: currentTimestamp
     };
+    
     tasksData.tasks.push(newTask);
-    res.status(201).json(newTask);
     tasksData.total_results++;
+    res.status(201).json(newTask);
 });
 
 
@@ -41,9 +46,14 @@ router.put('/:id', (req, res) => {
     const { id } = req.params;
     const taskIndex = tasksData.tasks.findIndex(task => task.id === id); 
     if (taskIndex === -1) {
-        return res.status(404).json({ status: 404, message: 'Task not found' });
-    }
-    const updatedTask = { ...tasksData.tasks[taskIndex], ...req.body, id:id };
+    return res.status(404).json({ status: 404, message: 'Task not found' });}
+    
+    const currentTimestamp = new Date().toISOString();
+    const updatedTask = { 
+        ...tasksData.tasks[taskIndex], 
+        ...req.body, 
+        id: id, 
+        updated_at: currentTimestamp };
     tasksData.tasks[taskIndex] = updatedTask;
     res.json(updatedTask);
 });
@@ -54,12 +64,12 @@ router.delete('/:id', (req, res) => {
     const { id } = req.params;
     const taskIndex = tasksData.tasks.findIndex(task => task.id === id);
     
-    if (taskIndex === -1) return res.status(404).json({status:404,message:'Task not found'});
+    if (taskIndex === -1) {
+        return res.status(404).json({ status: 404, message: 'Task not found' });}
     tasksData.tasks.splice(taskIndex, 1);
-    res.status(204).send();
     tasksData.total_results--;
+    res.status(204).send();
 });
-
 
 
 export default router;
