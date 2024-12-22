@@ -5,10 +5,11 @@ import Task from './taskModel';
 const router = express.Router();
 
 // Get all tasks
-router.get('/', asyncHandler(async (req, res) => {
-    const tasks = await Task.find();
+router.get('/', async (req, res) => {
+    const tasks = await Task.find().populate('userId', 'username');
     res.status(200).json(tasks);
-}));
+});
+
 
 // Create a task
 router.post('/', asyncHandler(async (req, res) => {
